@@ -1,0 +1,39 @@
+services:
+  nodejs-runner:
+    build:
+      context: .
+      dockerfile: dockerfile.nodejs
+      args:
+        RUNNER_VERSION: '2.321.0'
+    environment:
+      - GITHUB_ORG=${GITHUB_ORG}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+    volumes:
+      - ./nodejs-runner:/home/actions-runner
+    restart: always
+
+  dotnet-runner:
+    build:
+      context: .
+      dockerfile: dockerfile.dotnet
+      args:
+        RUNNER_VERSION: '2.321.0'
+    environment:
+      - GITHUB_ORG=${GITHUB_ORG}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+    volumes:
+      - ./dotnet-runner:/home/actions-runner
+    restart: always
+
+  multi-runner:
+    build:
+      context: .
+      dockerfile: dockerfile.multi
+      args:
+        RUNNER_VERSION: '2.321.0'
+    environment:
+      - GITHUB_ORG=${GITHUB_ORG}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+    volumes:
+      - ./multi-runner:/home/actions-runner
+    restart: always

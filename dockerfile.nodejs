@@ -1,0 +1,25 @@
+# Imagen base optimizada para Node.js
+FROM node:18-alpine
+
+# Configuraciones de seguridad y herramientas esenciales
+RUN apk add --no-cache curl git bash
+
+# Crear usuario no root
+RUN adduser -D -u 1001 runner
+USER runner
+WORKDIR /home/actions-runner 
+
+# Download runner packages
+ENV RUNNER_VERSION=2.321.0
+RUN curl -o actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz -L https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz \
+&& tar xzf ./actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz \
+&& rm actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz
+
+# Configurar el entrypoint
+COPY --chown=runner:runner entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+
+ENTRYPOINT ["/entrypoint.sh"]
+
+

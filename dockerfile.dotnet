@@ -1,0 +1,27 @@
+# Imagen base optimizada para .NET
+FROM mcr.microsoft.com/dotnet/sdk:7.0
+
+
+# Instalar herramientas adicionales
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl git bash \
+    && rm -rf /var/lib/apt/lists/*
+
+# Crear usuario no root
+RUN useradd -m -d /home/actions-runner  -s /bin/bash runner
+
+USER runner
+
+WORKDIR /home/actions-runner 
+
+# Download runner packages
+ENV RUNNER_VERSION=2.321.0
+RUN curl -o actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz -L https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz \
+    && tar xzf ./actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz \
+    && rm actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz
+
+# Configurar el entrypoint
+COPY --chown=runner:runner entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
