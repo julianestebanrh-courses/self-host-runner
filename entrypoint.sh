@@ -14,10 +14,22 @@ cd /home/actions-runner
 if [ -n "$GITHUB_ORG" ] && [ -n "$GITHUB_TOKEN" ]; then
 
   echo "Generating the runner token..."
-  RUNNER_TOKEN=$(curl -sX POST -H "Accept: application/vnd.github.v3+json" -H "Authorization: token ${GITHUB_TOKEN}" https://api.github.com/orgs/${GITHUB_ORG}/actions/runners/registration-token | jq .token --raw-output)
+  RUNNER_TOKEN=$(curl -L -X POST \
+  -H "Accept: application/vnd.github+json" \
+  -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+  -H "X-GitHub-Api-Version: 2022-11-28" \
+  https://api.github.com/orgs/${GITHUB_ORG}/actions/runners/registration-token | jq .token --raw-output)
+
+  # echo "GITHUB_TOKEN: $GITHUB_TOKEN"
+  # echo "RUNNER_TOKEN: $RUNNER_TOKEN"
+  # echo "URL: https://api.github.com/orgs/${GITHUB_ORG}/actions/runners/registration-token"
 
   echo "Configuring the runner..."
-  ./config.sh --url "https://github.com/$GITHUB_ORG" --token "$RUNNER_TOKEN" --unattended --replace
+  ./config.sh --url "https://github.com/$GITHUB_ORG" \
+      --token "$RUNNER_TOKEN" \
+      --name "$RUNNER_NAME" \
+      --labels "$LABELS" \
+      --unattended --replace
 
   cleanup() {
     echo "Removing runner..."
@@ -33,4 +45,4 @@ else
   exit 1
 fi
 
-exec ./run.sh & wait $!
+exec ./run.sh & wait $! 
