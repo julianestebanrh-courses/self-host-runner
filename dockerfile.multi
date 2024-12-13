@@ -13,7 +13,7 @@ LABEL RunnerVersion=${RUNNER_VERSION}
 
 # Instalar herramientas comunes
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl git bash unzip build-essential python3 python3-pip openjdk-11-jdk \
+    curl jq git bash unzip build-essential python3 python3-pip openjdk-11-jdk \
     && rm -rf /var/lib/apt/lists/*
 
 # Instalar Node.js

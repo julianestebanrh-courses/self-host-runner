@@ -1,16 +1,27 @@
-# Imagen base optimizada para Node.js
-FROM node:18-alpine
+# Imagen base optimizada para Node.js con Debian
+FROM node:18-bullseye
 
-# Configuraciones de seguridad y herramientas esenciales
-RUN apk add --no-cache curl git bash
+# Argumento para especificar la versión del runner
+ARG RUNNER_VERSION
+ENV DEBIAN_FRONTEND=noninteractive
+
+LABEL Author="Julian Esteban"
+LABEL Email="julianestebanrh.contact@gmail.com"
+LABEL GitHub="https://github.com/julianestebanrh"
+LABEL BaseImage="node:18-bullseye"
+LABEL RunnerVersion=${RUNNER_VERSION}
+
+# Instalar herramientas esenciales y dependencias necesarias
+RUN apt-get update && apt-get install -y \
+    curl git bash jq libssl-dev libc6 libgcc1 libstdc++6 zlib1g && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Crear usuario no root
-RUN adduser -D -u 1001 runner
+RUN useradd -m -u 1001 runner
 USER runner
 WORKDIR /home/actions-runner 
 
-# Download runner packages
-ENV RUNNER_VERSION=2.321.0
+# Descargar paquetes del runner
 RUN curl -o actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz -L https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz \
 && tar xzf ./actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz \
 && rm actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz
@@ -19,7 +30,4 @@ RUN curl -o actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz -L https://github.
 COPY --chown=runner:runner entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-
 ENTRYPOINT ["/entrypoint.sh"]
-
-
